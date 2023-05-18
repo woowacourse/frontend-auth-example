@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>사용자 인증 테스트</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // 사용자 이름과 비밀번호
+      const username = "user@example.com";
+      const password = "password1234";
+
+      // Base64로 인코딩
+      const base64 = btoa(username + ":" + password);
+      const dom = document.querySelector("#root");
+
+      async function access() {
+        try {
+          const response = await fetch("http://localhost:3000", {
+            headers: {
+              Authorization: `Basic ${base64}`,
+            },
+          });
+
+          const result = await response.text();
+          dom.innerHTML = result;
+        } catch (error) {
+          dom.innerHTML = error.toString();
+          console.error(error);
+        }
+      }
+
+      access();
+    </script>
+  </body>
+</html>
