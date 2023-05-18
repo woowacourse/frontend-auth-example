@@ -15,22 +15,36 @@
 
       // Base64로 인코딩
       const base64 = btoa(username + ":" + password);
-      const dom = document.querySelector("#root");
 
       async function access() {
         try {
-          const response = await fetch("http://localhost:3000", {
+          const response = await fetch("http://localhost:3000/cart-items", {
             headers: {
               Authorization: `Basic ${base64}`,
             },
           });
 
-          const result = await response.text();
-          dom.innerHTML = result;
+          const cartItems = await response.json();
+          render(cartItems);
         } catch (error) {
           dom.innerHTML = error.toString();
           console.error(error);
         }
+      }
+
+      function render(cartItems = []) {
+        const dom = document.querySelector("#root");
+
+        const itemListElement = document.createElement("ul");
+        const itemElements = cartItems
+          .map(
+            ({ name, price, imageUrl }) =>
+              `<li><div><img src="${imageUrl}" width="200"/><p>${name} (${price.toLocaleString()}원)</p></div></li>`
+          )
+          .join("");
+
+        itemListElement.innerHTML = itemElements;
+        dom.appendChild(itemListElement);
       }
 
       access();
