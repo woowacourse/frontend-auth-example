@@ -7,7 +7,19 @@
     <title>사용자 인증 테스트</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <header>
+        서버 선택:
+        <select name="serverList">
+          <option>포비</option>
+          <option>브라운</option>
+          <option>브리</option>
+        </select>
+        <button onClick="javascript:load()">불러오기</button>
+      </header>
+      <main></main>
+    </div>
+
     <script>
       // 사용자 이름과 비밀번호
       const username = "user@example.com";
@@ -16,9 +28,26 @@
       // Base64로 인코딩
       const base64 = btoa(username + ":" + password);
 
-      async function access() {
+      const servers = {
+        포비: "http://localhost:3000",
+        브라운: "https://frontend-auth-json-server.onrender.com",
+        브리: "https://json-server-4140.onrender.com",
+      };
+
+      const dom = document.querySelector("main");
+
+      async function load() {
+        // 1. 서버 선택
+        const selectedServer = document.querySelector("select[name=serverList]");
+        const host = servers[selectedServer.value];
+
+        access(host);
+      }
+
+      async function access(host = "") {
+        // 2. 서버 API 엔드포인트 접근
         try {
-          const response = await fetch("http://localhost:3000/cart-items", {
+          const response = await fetch(`${host}/cart-items`, {
             headers: {
               Authorization: `Basic ${base64}`,
             },
@@ -27,27 +56,34 @@
           const cartItems = await response.json();
           render(cartItems);
         } catch (error) {
-          dom.innerHTML = error.toString();
-          console.error(error);
+          renderMessage(error);
         }
       }
 
       function render(cartItems = []) {
-        const dom = document.querySelector("#root");
-
+        // 3. 결괏값 기반으로 렌더링 샘플
         const itemListElement = document.createElement("ul");
         const itemElements = cartItems
           .map(
             ({ name, price, imageUrl }) =>
-              `<li><div><img src="${imageUrl}" width="200"/><p>${name} (${price.toLocaleString()}원)</p></div></li>`
+              `<li>
+                  <div>
+                      <img src="${imageUrl}" width="200"/>
+                      <p>${name} (${price.toLocaleString()}원)</p>
+                  </div>
+                </li>`
           )
           .join("");
 
         itemListElement.innerHTML = itemElements;
+        dom.innerHTML = "";
         dom.appendChild(itemListElement);
       }
 
-      access();
+      function renderMessage(message = "") {
+        // 4. 서버 접근 중 오류가 발생한 경우 오류 처리 샘플
+        dom.innerHTML = message;
+      }
     </script>
   </body>
 </html>
